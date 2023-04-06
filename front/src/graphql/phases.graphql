@@ -1,0 +1,174 @@
+#import "./payments.graphql"
+
+fragment PhaseParts on Phase {
+  id
+  name
+  description
+  actualLaborCost
+  actualMaterialCost
+  actualOtherCost
+  order
+  funded
+  createdAt
+  updatedAt
+  tasks {
+    ...TaskParts
+  }
+  contract {
+    id
+    name
+    autoPayments
+    paymentPlan
+  }
+  autoPayoutRequest
+  chargeRequestedAt
+  chargeApprovedAt
+  chargeApprovedBy {
+    id
+    user {
+      id
+      firstName
+      lastName
+    }
+  }
+  chargeRequestedBy {
+    id
+    user {
+      id
+      firstName
+      lastName
+    }
+  }
+}
+
+fragment TaskParts on Task {
+  id
+  name
+  status
+  endDate
+  startDate
+  laborCost
+  otherCost
+  materialCost
+  markupPercent
+  phase {
+    id
+    contract {
+      id
+    }
+  }
+  payment {
+    id
+    esignId
+    chargeId
+    payoutId
+    payoutRequestedAt
+    notes
+    createdAt
+    updatedAt
+    charge {
+      ...PaymentOperationFragment
+    }
+    payout {
+      ...PaymentOperationFragment
+    }
+    files {
+      id
+      name
+      mime
+      thumbnail(width: 180)
+      url
+      description
+      tags
+      seenBy {
+        id
+        avatar {
+          id
+          thumbnail(width: 64)
+          url
+        }
+        firstName
+        lastName
+        lastRole {
+          id
+          name
+        }
+      }
+    }
+    comments {
+      id
+      text
+      subject
+      createdAt
+    }
+    ...PaymentHistoryParts
+  }
+}
+
+query GET_PHASES_QUERY($contractId: ID!) {
+  getPhases(contractId: $contractId) {
+    ...PhaseParts
+  }
+  getContract(contractId: $contractId) {
+    id
+    autoPayments
+    autoReleaseDays
+    partner {
+      id
+      company {
+        id
+        name
+        addresses {
+          id
+          city
+          state
+          zip
+          street
+        }
+      }
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
+    project {
+      id
+      owner {
+        id
+        user {
+          id
+          firstName
+          lastName
+        }
+      }
+      matchData
+    }
+    tags {
+      id
+      name
+      color
+    }
+  }
+}
+
+mutation UPDATE_PHASE_COST_MUTATION($phaseId: ID!, $cost: PhaseCostInput!) {
+  updateActualPhaseCost(phaseId: $phaseId, cost: $cost) {
+    id
+    actualLaborCost
+    actualMaterialCost
+    actualOtherCost
+  }
+}
+
+mutation FUND_NEXT_PHASE_MUTATION($contractId: ID!) {
+  fundNextPhase(contractId: $contractId) {
+    ...PhaseParts
+  }
+}
+
+mutation FUND_PHASE_MUTATION($phaseId: ID!) {
+  adminFundPhase(phaseId: $phaseId) {
+    ...PhaseParts
+  }
+}

@@ -1,0 +1,37 @@
+mutation CREATE_INSURANCE_MUTATION($input: InsuranceInput!, $files: [ID!]!) {
+  createInsurance(input: $input, files: $files) {
+    id
+    company
+    number
+    amount
+    expiresAt
+    files {
+      id
+      url
+      name
+    }
+  }
+}
+
+mutation UPDATE_INSURANCE_MUTATION(
+  $insuranceId: ID!
+  $input: InsuranceInput!
+  $files: [ID!]!
+) {
+  updateInsurance(insuranceId: $insuranceId, input: $input, files: $files) {
+    id
+    company
+    number
+    amount
+    expiresAt
+    files {
+      id
+      name
+      url
+    }
+  }
+}
+
+mutation DELETE_INSURANCE_MUTATION($insuranceId: ID!) {
+  deleteInsurance(insuranceId: $insuranceId)
+}

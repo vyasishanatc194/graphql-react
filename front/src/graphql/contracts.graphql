@@ -1,0 +1,255 @@
+#import "./phases.graphql"
+
+fragment UserFragment on User {
+  id
+  firstName
+  lastName
+  avatar {
+    id
+    url
+    thumbnail(width: 64)
+  }
+}
+
+fragment ContractQueryFragments on Contract {
+  id
+  name
+  status
+  autoReleaseDays
+  chat {
+    id
+  }
+  phases {
+    id
+    name
+    description
+    divisionTrade
+    order
+    funded
+    tasks {
+      id
+      name
+      status
+      description
+      divisionTrade
+      # change_orders {
+      #   id
+      # }
+      room
+      materialCost
+      laborCost
+      otherCost
+      markupPercent
+      startDate
+      endDate
+      assignees {
+        id
+        user {
+          id
+          firstName
+          lastName
+        }
+      }
+      payment {
+        id
+      }
+      phase {
+        id
+        name
+        order
+      }
+    }
+  }
+  partner {
+    id
+    user {
+      ...UserFragment
+    }
+  }
+  project {
+    id
+    owner {
+      id
+      user {
+        ...UserFragment
+      }
+    }
+  }
+
+  workingDays {
+    mon
+    tue
+    wed
+    thu
+    fri
+    sat
+    sun
+    holidays
+  }
+
+  currentUserPermission
+  createdAt
+  openedChangeOrders {
+    id
+    status
+    no
+    tasksVersions {
+      id
+      name
+    }
+    requester {
+      id
+      user {
+        id
+        firstName
+        lastName
+        avatar {
+          id
+          mime
+          name
+          url
+        }
+      }
+    }
+    createdAt
+  }
+  requestedPayouts {
+    id
+    payout {
+      id
+      createdAt
+      updatedAt
+      availableAt
+      status
+    }
+    payoutRequestedAt
+    charge {
+      id
+      createdAt
+      updatedAt
+      availableAt
+      status
+    }
+    task {
+      id
+      name
+      phase {
+        id
+        name
+      }
+    }
+  }
+  dismissReviewDates
+}
+
+fragment ManageContractQueryFragments on Contract {
+  id
+  name
+  status
+  updatedAt
+  chat {
+    id
+  }
+}
+
+query GET_MANAGE_CONTRACTS_QUERY($forceFetchContractId: ID) {
+  getManageContracts(forceFetchContractId: $forceFetchContractId) {
+    ...ManageContractQueryFragments
+  }
+}
+
+query GET_CONTRACT_QUERY($contractId: ID!) {
+  getContract(contractId: $contractId) {
+    ...ContractQueryFragments
+    tags {
+      id
+      name
+      color
+    }
+    paymentPlan
+  }
+}
+
+query GET_MANAGE_CONTRACT_QUERY($contractId: ID!) {
+  getContract(contractId: $contractId) {
+    ...ContractQueryFragments
+    tags {
+      id
+      name
+      color
+    }
+  }
+}
+
+mutation CREATE_CONTRACT_MUTATION($contractId: ID!, $esign: EsignInput!) {
+  acceptEstimate(contractId: $contractId, esign: $esign) {
+    id
+    name
+    chat {
+      id
+    }
+    phases {
+      id
+      name
+      order
+    }
+    status
+    currentUserPermission
+    updatedAt
+  }
+}
+
+mutation UPDATE_PHASES_ORDER_MUTATION($phaseId: ID!, $moveTo: Int!) {
+  movePhase(phaseId: $phaseId, moveTo: $moveTo) {
+    ...PhaseParts
+  }
+}
+
+mutation END_CONTRACT_MUTATION(
+  $contractId: ID!
+  $esign: EsignInput
+  $reason: String!
+  $partialPayment: Boolean!
+) {
+  endContract(
+    contractId: $contractId
+    esign: $esign
+    reason: $reason
+    partialPayment: $partialPayment
+  ) {
+    id
+    status
+    completions {
+      id
+      reason
+      partialPayment
+      createdAt
+      updatedAt
+      initiatedBy {
+        id
+        user {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
+  }
+}
+
+mutation REOPEN_CONTRACT($contractId: ID!) {
+  reOpenContract(contractId: $contractId) {
+    id
+  }
+}
+
+subscription CONTRACT_UPDATED_SUBSCRIPTION($contractId: ID!) {
+  contractUpdated(contractId: $contractId) {
+    ...ContractQueryFragments
+  }
+}
+mutation DISMISS_CONTRACT_REVIEW_DATES($contractId: ID!) {
+  dismissContractReviewDates(contractId: $contractId) {
+    ...ContractQueryFragments
+  }
+}

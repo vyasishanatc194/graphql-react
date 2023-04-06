@@ -1,0 +1,26 @@
+#import "./auth.graphql"
+
+fragment InviteParts on Invite {
+  id
+  firstName
+  lastName
+  phone
+  email
+  createdAt
+  updatedAt
+}
+
+query GET_INVITE_QUERY($key: String!) {
+  getInvite(key: $key) {
+    ...InviteParts
+  }
+}
+
+mutation REGISTER_INVITE_MUTATION($key: String!, $input: InviteUserInput!) {
+  registerByInvite(key: $key, input: $input) {
+    token
+    user {
+      ...CurrentUserData
+    }
+  }
+}
